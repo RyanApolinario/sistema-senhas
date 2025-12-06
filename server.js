@@ -68,13 +68,6 @@ const loginLimiter = rateLimit({
 app.use('/api/usuarios/', limiter);
 app.use('/api/configuracoes/', limiter);
 
-// Login com limitador específico
-app.post('/api/auth/login', loginLimiter, loginHandler);
-
-// /auth/me e /auth/logout sem limiter geral
-app.get('/api/auth/me', authMeHandler);
-app.post('/api/auth/logout', logoutHandler);
-
 // Rate limiting permissivo para rotas públicas (TV, totem, mobile)
 const publicLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minuto
