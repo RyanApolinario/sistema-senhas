@@ -53,17 +53,6 @@ const limiter = rateLimit({
     message: { error: 'Muitas requisições, tente novamente mais tarde.' }
 });
 
-// Aplica limiter geral apenas em /usuarios e /configuracoes
-app.use('/api/usuarios/', limiter);
-app.use('/api/configuracoes/', limiter);
-
-// Login com limitador específico
-app.post('/api/auth/login', loginLimiter, loginHandler);
-
-// /auth/me e /auth/logout sem limiter geral
-app.get('/api/auth/me', authMeHandler);
-app.post('/api/auth/logout', logoutHandler);
-
 // Rate limiting específico para login (mais restritivo)
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -74,6 +63,17 @@ const loginLimiter = rateLimit({
     // 👇 Só conta tentativas que deram ERRO (4xx ou 5xx)
     skipSuccessfulRequests: true
 });
+
+// Aplica limiter geral apenas em /usuarios e /configuracoes
+app.use('/api/usuarios/', limiter);
+app.use('/api/configuracoes/', limiter);
+
+// Login com limitador específico
+app.post('/api/auth/login', loginLimiter, loginHandler);
+
+// /auth/me e /auth/logout sem limiter geral
+app.get('/api/auth/me', authMeHandler);
+app.post('/api/auth/logout', logoutHandler);
 
 // Rate limiting permissivo para rotas públicas (TV, totem, mobile)
 const publicLimiter = rateLimit({
