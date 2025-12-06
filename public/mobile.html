@@ -263,6 +263,70 @@
             font-weight: 900;
             color: #667eea;
         }
+
+        /* NOVO: Histórico de chamadas */
+        .history-card {
+            margin-top: 10px;
+        }
+
+        .history-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1f2933;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-title span {
+            font-size: 20px;
+        }
+
+        .history-list {
+            list-style: none;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .history-empty {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #f7fafc;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .history-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-code {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .history-right {
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .history-guiche {
+            color: #667eea;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -278,6 +342,9 @@
             <div class="loading-text">Carregando informações...</div>
         </div>
     </div>
+
+    <!-- NOVO: container para o histórico -->
+    <div id="history"></div>
 
     <div class="footer">
         Atualizando automaticamente a cada 3 segundos
@@ -314,6 +381,9 @@
                 const data = await response.json();
                 mostrarSenha(data);
 
+                // NOVO: sempre atualizar também o histórico
+                carregarHistoricoChamadas();
+
             } catch (error) {
                 console.error('Erro ao carregar senha:', error);
                 mostrarErro('Erro de conexão', 'Verifique sua conexão com a internet.');
@@ -340,7 +410,6 @@
                 `;
             } else {
                 // Senha aguardando
-                // Buscar posição na fila
                 buscarPosicaoFila(data.fullCode, data.type).then(posicao => {
                     content.innerHTML = `
                         <div class="card senha-card">
@@ -377,7 +446,6 @@
                 if (response.ok) {
                     const fila = await response.json();
                     
-                    // Filtrar por tipo (prioridade)
                     const filaDoTipo = fila.filter(s => s.type === tipo);
                     const index = filaDoTipo.findIndex(s => s.fullCode === codigo);
                     
@@ -403,6 +471,61 @@
             `;
         }
 
+        // NOVO: carregar histórico a partir do mesmo endpoint da TV (/historico?limit=6)
+        async function carregarHistoricoChamadas() {
+            try {
+                const response = await fetch(`${API_URL}/historico?limit=6`);
+                if (!response.ok) {
+                    return;
+                }
+
+                const historico = await response.json();
+                mostrarHistoricoChamadas(historico);
+            } catch (err) {
+                console.error('Erro ao carregar histórico de chamadas:', err);
+            }
+        }
+
+        function mostrarHistoricoChamadas(historico) {
+            const historyDiv = document.getElementById('history');
+
+            if (!historico || historico.length === 0) {
+                historyDiv.innerHTML = `
+                    <div class="card history-card">
+                        <div class="history-title">
+                            <span>📋</span> Últimas chamadas
+                        </div>
+                        <div class="history-empty">
+                            Nenhuma senha chamada ainda.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const itens = historico.map(item => `
+                <li class="history-item">
+                    <div class="history-left">
+                        <span class="history-code">${item.senha}</span>
+                    </div>
+                    <div class="history-right">
+                        <div class="history-guiche">Guichê ${item.guiche}</div>
+                    </div>
+                </li>
+            `).join('');
+
+            historyDiv.innerHTML = `
+                <div class="card history-card">
+                    <div class="history-title">
+                        <span>📋</span> Últimas chamadas
+                    </div>
+                    <ul class="history-list">
+                        ${itens}
+                    </ul>
+                </div>
+            `;
+        }
+
         // Carregar imediatamente e atualizar a cada 3 segundos
         carregarSenha();
         updateInterval = setInterval(carregarSenha, 3000);
@@ -422,12 +545,10 @@
             if (statusBadge && statusBadge.classList.contains('status-called') && wasWaiting) {
                 wasWaiting = false;
                 
-                // Vibrar (se disponível)
                 if ('vibrate' in navigator) {
                     navigator.vibrate([200, 100, 200, 100, 200]);
                 }
 
-                // Tocar som
                 try {
                     const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE=');
                     audio.play().catch(e => {});
