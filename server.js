@@ -91,7 +91,7 @@ app.use(session({
 app.use(express.static('public'));
 
 // Banco de dados com configurações otimizadas
-const DB_PATH = process.env.DATABASE_PATH || './senhas.db';
+const DB_PATH = process.env.DATABASE_PATH || './data/senhas.db';
 const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
         console.error('❌ Erro ao conectar ao banco de dados:', err);
