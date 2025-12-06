@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Chamada de Senhas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Login Screen */
+        .login-container {
+            max-width: 450px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-title {
+            font-size: 32px;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-subtitle {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 18px;
+            color: #6c757d;
+            border: none;
+            background: transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #667eea;
+        }
+
+        .tab.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tab.locked::before {
+            content: '🔒 ';
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* User Info Bar */
+        .user-bar {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c53030;
+        }
+
+        /* Totem (Unchanged) */
+        .totem-container {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .totem-title {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .totem-subtitle {
+            font-size: 18px;
+            color: #718096;
+            margin-bottom: 40px;
+        }
+
+        .priority-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .priority-btn {
+            padding: 40px 20px;
+            font-size: 24px;
+            font-weight: 700;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .priority-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .priority-btn.p80 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .priority-btn.p60 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .priority-btn.pcd {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .priority-btn.geral {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .senha-display {
+            display: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .senha-display.show {
+            display: block;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .senha-numero {
+            font-size: 80px;
+            font-weight: 900;
+            margin: 20px 0;
+        }
+
+        .senha-tipo {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* TV Panel (Unchanged) */
+        .tv-container {
+            text-align: center;
+            min-height: 500px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 20px;
+        }
+
+        .tv-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+
+        .chamada-atual {
+            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+        }
+
+        .chamada-numero {
+            font-size: 120px;
+            font-weight: 900;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .chamada-guiche {
+            font-size: 48px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .ultimas-chamadas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .chamada-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .chamada-item-numero {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .chamada-item-guiche {
+            font-size: 18px;
+            color: #ffd700;
+        }
+
+        /* Operator Panel */
+        .operator-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .operator-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .operator-title {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .guiche-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .guiche-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .guiche-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .guiche-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .operator-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .action-btn {
+            padding: 30px 20px;
+            font-size: 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .fila-info {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .fila-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .historico {
+            margin-top: 30px;
+        }
+
+        .historico-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .historico-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .historico-item {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .historico-senha {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .historico-info {
+            text-align: right;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        /* Admin Panel */
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-title {
+            font-size: 36px;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .add-user-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-user-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 233, 123, 0.3);
+        }
+
+        .users-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: #f8f9fa;
+        }
+
+        .table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.admin {
+            background: #ffd700;
+            color: #744210;
+        }
+
+        .badge.operador {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge.ativo {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge.inativo {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .icon-btn.edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .icon-btn.delete {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 600;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 5px solid #28a745;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 5px solid #17a2b8;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .priority-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .operator-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-header">
+            <h1 class="login-title">🏥 Sistema de Senhas</h1>
+            <p class="login-subtitle">Faça login para acessar o painel</p>
+        </div>
+
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label class="form-label">Usuário</label>
+                <input type="text" id="loginUsername" class="form-input" placeholder="Digite seu usuário" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="loginPassword" class="form-input" placeholder="Digite sua senha" required>
+            </div>
+
+            <div id="loginAlert" class="alert"></div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                Entrar
+            </button>
+        </form>
+    </div>
+
+    <!-- Main App (Hidden until login) -->
+    <div id="mainApp" class="container hidden">
+        <!-- User Bar -->
+        <div class="user-bar">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Usuário</div>
+                    <div class="user-role" id="userRole">Role</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Sair</button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('totem')">
+                🎫 Totem Autoatendimento
+            </button>
+            <button class="tab" onclick="openTab('tv')">
+                📺 Painel de TV
+            </button>
+            <button class="tab" onclick="openTab('operator')">
+                👤 Painel do Operador
+            </button>
+            <button class="tab locked hidden" id="adminTab" onclick="openTab('admin')">
+                ⚙️ Administração
+            </button>
+        </div>
+
+        <!-- Totem Content -->
+        <div id="totem" class="tab-content active">
+            <div class="totem-container">
+                <h1 class="totem-title">🎫 Retire sua Senha</h1>
+                <p class="totem-subtitle">Selecione o tipo de atendimento desejado</p>
+
+                <div class="priority-buttons">
+                    <button class="priority-btn p80" onclick="gerarSenha('P80')">
+                        <div style="font-size: 48px; margin-bottom: 10px;">👴</div>
+                        Prioridade 80+
+                    </button>
+                    <button class="priority-btn p60" onclick="gerarSenha('P60')">
+                        <div style="font-size: 48px; margin-bottom: 10px;">👵</div>
+                        Prioridade 60+
+                    </button>
+                    <button class="priority-btn pcd" onclick="gerarSenha('PCD')">
+                        <div style="font-size: 48px; margin-bottom: 10px;">♿</div>
+                        PCD
+                    </button>
+                    <button class="priority-btn geral" onclick="gerarSenha('A')">
+                        <div style="font-size: 48px; margin-bottom: 10px;">👤</div>
+                        Atendimento Geral
+                    </button>
+                </div>
+
+                <div id="senhaDisplay" class="senha-display">
+                    <div class="senha-tipo" id="senhaType"></div>
+                    <div class="senha-numero" id="senhaNumero"></div>
+                    <p style="font-size: 18px;">Aguarde ser chamado no painel</p>
+                </div>
+
+                <div id="totemAlert" class="alert"></div>
+            </div>
+        </div>
+
+        <!-- TV Content -->
+        <div id="tv" class="tab-content">
+            <div class="tv-container">
+                <h1 class="tv-title">🏥 Painel de Chamadas</h1>
+
+                <div class="chamada-atual">
+                    <div style="font-size: 24px; margin-bottom: 10px;">Chamada Atual</div>
+                    <div class="chamada-numero" id="tvSenhaAtual">---</div>
+                    <div class="chamada-guiche" id="tvGuicheAtual">Aguarde...</div>
+                </div>
+
+                <div style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">
+                    📋 Últimas Chamadas
+                </div>
+                <div class="ultimas-chamadas" id="ultimasChamadas"></div>
+            </div>
+        </div>
+
+        <!-- Operator Content -->
+        <div id="operator" class="tab-content">
+            <div class="operator-container">
+                <div class="operator-header">
+                    <h1 class="operator-title">👤 Painel do Operador</h1>
+                    <p style="color: #718096; font-size: 16px;">
+                        Selecione seu guichê e gerencie as chamadas
+                    </p>
+                </div>
+
+                <div class="guiche-selector">
+                    <button class="guiche-btn" onclick="selecionarGuiche(1)">Guichê 1</button>
+                    <button class="guiche-btn" onclick="selecionarGuiche(2)">Guichê 2</button>
+                    <button class="guiche-btn" onclick="selecionarGuiche(3)">Guichê 3</button>
+                    <button class="guiche-btn" onclick="selecionarGuiche(4)">Guichê 4</button>
+                    <button class="guiche-btn" onclick="selecionarGuiche(5)">Guichê 5</button>
+                </div>
+
+                <div id="operatorAlert" class="alert"></div>
+
+                <div class="operator-actions">
+                    <button class="action-btn primary" onclick="chamarProxima()">
+                        📢 Chamar Próxima Senha
+                    </button>
+                    <button class="action-btn secondary" onclick="rechamar()">
+                        🔁 Rechamar
+                    </button>
+                </div>
+
+                <div class="fila-info">
+                    <h3 style="font-size: 20px; font-weight: 700; color: #2d3748; margin-bottom: 15px;">
+                        📊 Estatísticas da Fila
+                    </h3>
+                    <div class="fila-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="statP80">0</div>
+                            <div class="stat-label">Prioridade 80+</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="statP60">0</div>
+                            <div class="stat-label">Prioridade 60+</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="statPCD">0</div>
+                            <div class="stat-label">PCD</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="statGeral">0</div>
+                            <div class="stat-label">Geral</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="historico">
+                    <h3 class="historico-title">📜 Histórico de Atendimentos</h3>
+                    <div class="historico-list" id="historicoList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content -->
+        <div id="admin" class="tab-content">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h1 class="admin-title">⚙️ Gerenciar Usuários</h1>
+                    <button class="add-user-btn" onclick="openUserModal()">
+                        ➕ Novo Usuário
+                    </button>
+                </div>
+
+                <div id="adminAlert" class="alert"></div>
+
+                <div class="users-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Função</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Novo Usuário</h2>
+                <button class="modal-close" onclick="closeUserModal()">×</button>
+            </div>
+
+            <form id="userForm" class="modal-body">
+                <input type="hidden" id="userId">
+
+                <div class="form-group">
+                    <label class="form-label">Usuário *</label>
+                    <input type="text" id="modalUsername" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nome Completo *</label>
+                    <input type="text" id="modalNome" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="modalEmail" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Função *</label>
+                    <select id="modalRole" class="form-input" required>
+                        <option value="operador">Operador</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="passwordGroup">
+                    <label class="form-label">Senha *</label>
+                    <input type="password" id="modalPassword" class="form-input" minlength="6">
+                    <small style="color: #718096;">Mínimo 6 caracteres</small>
+                </div>
+
+                <div class="form-group hidden" id="newPasswordGroup">
+                    <label class="form-label">Nova Senha</label>
+                    <input type="password" id="modalNewPassword" class="form-input" minlength="6">
+                    <small style="color: #718096;">Deixe em branco para não alterar</small>
+                </div>
+
+                <div class="form-group hidden" id="statusGroup">
+                    <label class="form-label">Status</label>
+                    <select id="modalAtivo" class="form-input">
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
+                    </select>
+                </div>
+
+                <div id="modalAlert" class="alert"></div>
+            </form>
+
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeUserModal()">Cancelar</button>
+                <button class="btn primary" onclick="saveUser()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

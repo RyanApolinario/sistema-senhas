@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Serviço principal do sistema de senhas
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sistema-senhas
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_PATH=/app/data/senhas.db
+    volumes:
+      # Volume para persistência do banco de dados
+      - senhas-data:/app/data
+      # Volume para backups (opcional)
+      - ./backups:/app/backups
+    networks:
+      - senhas-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Limites de recursos (opcional)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Nginx como proxy reverso (opcional, para produção)
+  # Descomente se quiser usar HTTPS local
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: sistema-senhas-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - senhas-network
+
+volumes:
+  # Volume nomeado para persistência dos dados
+  senhas-data:
+    driver: local
+
+networks:
+  senhas-network:
+    driver: bridge

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Acompanhar Senha</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 30px;
+            margin: 10px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #2d3748;
+        }
+
+        .senha-card {
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .senha-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #718096;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .senha-numero {
+            font-size: 72px;
+            font-weight: 900;
+            color: #667eea;
+            margin: 20px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .senha-tipo {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-waiting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-called {
+            background: #d1fae5;
+            color: #065f46;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .info-card {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+
+        .info-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #718096;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .alert-card {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .alert-icon {
+            font-size: 56px;
+            margin-bottom: 15px;
+        }
+
+        .alert-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #10b981;
+        }
+
+        .alert-message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .alert-guiche {
+            font-size: 42px;
+            font-weight: 900;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .error-card {
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #dc2626;
+        }
+
+        .error-message {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .refresh-btn {
+            margin-top: 25px;
+            padding: 14px 35px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+
+        .footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .fila-info {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .fila-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .fila-count {
+            font-size: 28px;
+            font-weight: 900;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🎫</div>
+        <div class="title">Sistema de Senhas</div>
+        <div class="subtitle">Acompanhe sua senha</div>
+    </div>
+
+    <div id="content">
+        <div class="card loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Carregando informações...</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Atualizando automaticamente a cada 3 segundos
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        const token = window.location.pathname.split('/').pop();
+        let updateInterval;
+
+        function getTipoNome(type) {
+            const tipos = {
+                'P80': '👴 Prioridade 80+',
+                'P60': '👵 Prioridade 60+',
+                'PCD': '♿ PCD',
+                'A': '👤 Atendimento Geral'
+            };
+            return tipos[type] || type;
+        }
+
+        async function carregarSenha() {
+            try {
+                const response = await fetch(`${API_URL}/senha/${token}`);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        mostrarErro('Senha não encontrada', 'Esta senha não existe ou já foi processada.');
+                    } else {
+                        mostrarErro('Erro ao carregar', 'Não foi possível carregar as informações.');
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                mostrarSenha(data);
+
+            } catch (error) {
+                console.error('Erro ao carregar senha:', error);
+                mostrarErro('Erro de conexão', 'Verifique sua conexão com a internet.');
+            }
+        }
+
+        function mostrarSenha(data) {
+            const content = document.getElementById('content');
+
+            if (data.chamada) {
+                // Senha já foi chamada
+                content.innerHTML = `
+                    <div class="card alert-card">
+                        <div class="alert-icon">✅</div>
+                        <div class="alert-title">Sua senha foi chamada!</div>
+                        <div class="alert-message">
+                            Dirija-se ao guichê indicado:
+                        </div>
+                        <div class="alert-guiche">Guichê ${data.chamada.guiche}</div>
+                        <div class="status-badge status-called">
+                            Chamada às ${new Date(data.chamada.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Senha aguardando
+                // Buscar posição na fila
+                buscarPosicaoFila(data.fullCode, data.type).then(posicao => {
+                    content.innerHTML = `
+                        <div class="card senha-card">
+                            <div class="senha-label">Sua Senha</div>
+                            <div class="senha-numero">${data.fullCode}</div>
+                            <div class="senha-tipo">${getTipoNome(data.type)}</div>
+                            <div class="status-badge status-waiting">Aguardando Chamada</div>
+                            ${posicao ? `
+                                <div class="fila-info">
+                                    <div class="fila-label">Sua posição na fila</div>
+                                    <div class="fila-count">${posicao}º</div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="card info-card">
+                            <div class="info-row">
+                                <span class="info-label">📅 Gerada em</span>
+                                <span class="info-value">${new Date(data.createdAt).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">🕐 Horário</span>
+                                <span class="info-value">${new Date(data.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        async function buscarPosicaoFila(codigo, tipo) {
+            try {
+                const response = await fetch(`${API_URL}/fila`);
+                if (response.ok) {
+                    const fila = await response.json();
+                    
+                    // Filtrar por tipo (prioridade)
+                    const filaDoTipo = fila.filter(s => s.type === tipo);
+                    const index = filaDoTipo.findIndex(s => s.fullCode === codigo);
+                    
+                    return index >= 0 ? index + 1 : null;
+                }
+            } catch (error) {
+                console.error('Erro ao buscar posição na fila:', error);
+                return null;
+            }
+        }
+
+        function mostrarErro(titulo, mensagem) {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="card error-card">
+                    <div class="error-icon">❌</div>
+                    <div class="error-title">${titulo}</div>
+                    <div class="error-message">${mensagem}</div>
+                    <button class="refresh-btn" onclick="location.reload()">
+                        🔄 Tentar Novamente
+                    </button>
+                </div>
+            `;
+        }
+
+        // Carregar imediatamente e atualizar a cada 3 segundos
+        carregarSenha();
+        updateInterval = setInterval(carregarSenha, 3000);
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        });
+
+        // Vibrar quando senha for chamada
+        let wasWaiting = true;
+
+        setInterval(() => {
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge && statusBadge.classList.contains('status-called') && wasWaiting) {
+                wasWaiting = false;
+                
+                // Vibrar (se disponível)
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200, 100, 200]);
+                }
+
+                // Tocar som
+                try {
+                    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE=');
+                    audio.play().catch(e => {});
+                } catch (e) {}
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
