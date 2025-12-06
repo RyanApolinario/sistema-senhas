@@ -15,6 +15,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+if (NODE_ENV === 'production') {
+    // diz pro Express confiar nos headers do proxy (X-Forwarded-For, X-Forwarded-Proto, etc.)
+    app.set('trust proxy', 1);
+}
+
 // CORS configurado para produção
 const allowedOrigins = [
     'http://localhost:3000',
@@ -81,10 +86,17 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'sistema-senhas-secret-key-change-in-production',
     resave: false,
     saveUninitialized: false,
+    proxy: NODE_ENV === 'production', // 👈 IMPORTANTE QUANDO TEM PROXY
     cookie: {
-        secure: NODE_ENV === 'production',
+        secure: NODE_ENV === 'production', // cookie só via HTTPS em produção
         httpOnly: true,
-        maxAge: 8 * 60 * 60 * 1000
+        maxAge: 8 * 60 * 60 * 1000,
+        // Se front e back forem MESMO domínio (ex: painelsenhas.ryanapolinario.com.br),
+        // Lax é suficiente:
+        sameSite: 'lax'
+        // Se em algum momento você usar front em outro domínio/subdomínio,
+        // troque para:
+        // sameSite: 'none'
     }
 }));
 
