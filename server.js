@@ -332,9 +332,9 @@ function requireAdmin(req, res, next) {
 // ROTAS DE PÁGINAS (PÚBLICAS E PROTEGIDAS)
 // ============================================
 
-// Página inicial - redireciona para totem
+// Página inicial - redireciona para o Totem
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'totem.html'));
+    res.redirect('/totem');
 });
 
 // Totem - PÚBLICO
@@ -355,6 +355,11 @@ app.get('/mobile/:token', (req, res) => {
 // Painel Operador - PROTEGIDO (verifica no frontend)
 app.get('/operador', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'operador.html'));
+});
+
+// Admin - painel completo (login, abas, etc.)
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ============================================
