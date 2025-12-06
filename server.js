@@ -76,7 +76,7 @@ app.use(cookieParser());
 app.use(session({
     store: new SQLiteStore({
         db: 'sessions.db',
-        dir: './'
+        dir: './data/'
     }),
     secret: process.env.SESSION_SECRET || 'sistema-senhas-secret-key-change-in-production',
     resave: false,
