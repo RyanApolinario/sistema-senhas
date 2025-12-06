@@ -53,17 +53,26 @@ const limiter = rateLimit({
     message: { error: 'Muitas requisições, tente novamente mais tarde.' }
 });
 
-// Aplicar rate limit APENAS em rotas de autenticação e admin
-// NÃO aplicar em rotas públicas (TV, totem, mobile)
-app.use('/api/auth/', limiter);
+// Aplica limiter geral apenas em /usuarios e /configuracoes
 app.use('/api/usuarios/', limiter);
 app.use('/api/configuracoes/', limiter);
+
+// Login com limitador específico
+app.post('/api/auth/login', loginLimiter, loginHandler);
+
+// /auth/me e /auth/logout sem limiter geral
+app.get('/api/auth/me', authMeHandler);
+app.post('/api/auth/logout', logoutHandler);
 
 // Rate limiting específico para login (mais restritivo)
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 5,
-    message: { error: 'Muitas tentativas de login. Tente novamente em 15 minutos.' }
+    message: { error: 'Muitas tentativas de login. Tente novamente em 15 minutos.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    // 👇 Só conta tentativas que deram ERRO (4xx ou 5xx)
+    skipSuccessfulRequests: true
 });
 
 // Rate limiting permissivo para rotas públicas (TV, totem, mobile)
