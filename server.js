@@ -766,7 +766,13 @@ app.get('/api/historico', publicLimiter, (req, res) => {
     const limit = req.query.limit || 20;
     
     db.all(
-        'SELECT * FROM atendimentos ORDER BY timestamp DESC LIMIT ?',
+         `
+        SELECT * 
+        FROM atendimentos 
+        WHERE DATE(timestamp) = DATE('now', 'localtime')
+        ORDER BY timestamp DESC 
+        LIMIT ?
+        `,
         [limit],
         (err, rows) => {
             if (err) {
